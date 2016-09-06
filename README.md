@@ -1,4 +1,4 @@
-# cs351-fall16-zai
+# CS 351 Code Repository
 
 ```
 var student = {
