@@ -11,7 +11,7 @@ unsigned long hash(char *str) {
   while ((c = *str++))
     hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
-    return hash;
+  return hash;
 }
 
 hashtable_t *make_hashtable(unsigned long size) {
@@ -61,7 +61,6 @@ void ht_iter(hashtable_t *ht, int (*f)(char *, void *)) {
       if (!f(b->key, b->val)) {
         return ; // abort iteration
       }
-      f(b->key, b->val);
       b = b->next;
     }
   }
