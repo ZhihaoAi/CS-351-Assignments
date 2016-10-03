@@ -171,6 +171,9 @@ void eval(char *cmdline)
 
   // struct job_t *job;
   bg = parseline(cmdline, argv);
+  sigset_t mask;
+  sigemptyset(&mask);
+  sigaddset(&mask, SIGCHLD);
 
   if (argv[0][0]!='/' && argv[0][0]!='.'){
     builtin_cmd(argv);
@@ -192,6 +195,7 @@ void eval(char *cmdline)
   //   }
   // }
 
+  // sigprocmask(SIG_BLOCK, &mask, NULL);
   if (!strcmp(argv[0],"/bin/echo")){
     if (!strcmp(argv[1],"-e")){
 
@@ -200,6 +204,8 @@ void eval(char *cmdline)
       }
 
       if ((pid = fork()) == 0) {
+        // sigprocmask(SIG_UNBLOCK, &mask, NULL);
+        // setpgid(0, 0);
         execv(argv[0], &argv[1]);
         exit(0); /* in case exec fails */
       } else {
@@ -209,6 +215,8 @@ void eval(char *cmdline)
     } else {
 
       if ((pid = fork()) == 0) {
+        // sigprocmask(SIG_UNBLOCK, &mask, NULL);
+        // setpgid(0, 0);
         execv(argv[0], argv);
         exit(0); /* in case exec fails */
       } else {
@@ -220,8 +228,10 @@ void eval(char *cmdline)
   }
 
   // if (!strcmp(argv[0],"./myspin")){
-
+  sigprocmask(SIG_BLOCK, &mask, NULL);
     if ((pid = fork()) == 0) {
+      // sigprocmask(SIG_UNBLOCK, &mask, NULL);
+      setpgid(0, 0);
       execv(argv[0], argv);
       exit(0); /* in case exec fails */
     }
@@ -233,7 +243,9 @@ void eval(char *cmdline)
   // }
   //
   addjob(jobs, pid, bg?BG:FG, cmdline);
+  sigprocmask(SIG_UNBLOCK, &mask, NULL);
   if (!bg) {
+    // sigprocmask(SIG_UNBLOCK, &mask, NULL);
     waitfg(pid);
   }
   else
@@ -339,11 +351,11 @@ void do_bgfg(char **argv)
   }
   if (!strcmp(argv[0], "bg")) {
       job->state = BG;
-      kill(job->pid, SIGCONT);
+      kill(-(job->pid), SIGCONT);
       printf("[%d] (%d) %s", jid, job->pid, job->cmdline);
   } else if (!strcmp(argv[0], "fg")) {
       job->state = FG;
-      kill(job->pid, SIGCONT);
+      kill(-(job->pid), SIGCONT);
       waitfg(job->pid);
   }
   return;  
@@ -355,7 +367,7 @@ void do_bgfg(char **argv)
 void waitfg(pid_t pid)
 {
   while(pid==fgpid(jobs)){
-    sleep(1);
+    sleep(0);
     // printf("%s\n", "###########");
   }
   return;
@@ -381,11 +393,11 @@ void sigchld_handler(int sig)
     if (WIFSTOPPED(status)) {
       int jid=pid2jid(pid);
 
-      if(jid!=0) {
+      // if(jid) {
         //stopped
         printf("Job [%d] (%d) stopped by signal %d\n", jid, pid, WSTOPSIG(status));
         getjobpid(jobs,pid)->state=ST;
-      }
+      // }
 
     } else {
       if (WIFSIGNALED(status)) {
@@ -429,7 +441,7 @@ void sigint_handler(int sig)
   // int stat;
   pid_t pid = fgpid(jobs);
   if (pid){
-    kill(pid, sig);
+    kill(-pid, sig);
   }
   //printf("Job [%d] (%d) terminated by signal 2\n", pid2jid(pid) ,pid);
   //deletejob(jobs, pid);
@@ -447,7 +459,7 @@ void sigtstp_handler(int sig)
   // int stat;
   pid_t pid = fgpid(jobs);
   if (pid){
-    kill(pid, sig);
+    kill(-pid, sig);
   }
   //getjobpid(jobs, pid) -> state = ST;
   //wait(&stat);
