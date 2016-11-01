@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <limits.h>
 
 #define MAXLEN 80
 #define WORD 64
@@ -22,7 +21,7 @@ line** cache;
 
 void help(){
     printf("\
-Usage: ./csim [-hv] -s <num> -E <num> -b <num> -t <tracefile>\n\
+Usage: ./csim [-hv] -s <s> -E <E> -b <b> -t <tracefile>\n\
 Options:\n\
 -h              Optional help flag that prints usage info\n\
 -v              Optional verbose flag that displays trace info\n\
@@ -71,7 +70,7 @@ void eval(int argc, char* argv[], char* tracefile) {
     }
 }
 
-void updateCount (int set, int i) {
+void updateCount(int set, int i) {
     for (int j=0; j < E; j++) {
         if ((cache[set][j].valid == 1) && 
             (cache[set][j].count > cache[set][i].count)) {
@@ -81,7 +80,7 @@ void updateCount (int set, int i) {
     cache[set][i].count = E;
 }
 
-void run (line **cache, char *command) {
+void run(char *command) {
     char opt;
     unsigned long address, tag;
     int set, i;
@@ -149,7 +148,7 @@ int main(int argc, char* argv[])
     while (fgets(command, MAXLEN, file)){
         if (command[0] == ' '){
             command[strlen(command)-1] = '\0';
-            run(cache, command);
+            run(command);
         }
     }
     fclose(file);
