@@ -80,7 +80,7 @@ void updateCount(int set, int i){
     cache[set][i].count = E;
 }
 
-void run(char *command{
+void run(char *command){
     char opt;
     unsigned long address, tag;
     int set, i;
