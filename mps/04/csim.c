@@ -31,7 +31,7 @@ Options:\n\
 -t <tracefile>  Name of the valgrind trace to replay\n");
 }
 
-void init() {
+void init(){
     int S=1<<s;
     cache = malloc (S * sizeof(line*));
     for (int i = 0; i < S; i++) {
@@ -42,7 +42,7 @@ void init() {
     }
 }
 
-void eval(int argc, char* argv[], char* tracefile) {
+void eval(int argc, char* argv[], char* tracefile){
     char opt;
     while ((opt = getopt(argc,argv,"hvs:E:b:t:")) != EOF) {
         switch (opt) {
@@ -70,7 +70,7 @@ void eval(int argc, char* argv[], char* tracefile) {
     }
 }
 
-void updateCount(int set, int i) {
+void updateCount(int set, int i){
     for (int j=0; j < E; j++) {
         if ((cache[set][j].valid == 1) && 
             (cache[set][j].count > cache[set][i].count)) {
@@ -80,7 +80,7 @@ void updateCount(int set, int i) {
     cache[set][i].count = E;
 }
 
-void run(char *command) {
+void run(char *command{
     char opt;
     unsigned long address, tag;
     int set, i;
@@ -126,8 +126,7 @@ void run(char *command) {
     }
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]){
     char tracefile[MAXLEN];
     char command[MAXLEN];
     FILE *file;
